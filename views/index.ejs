@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google</title>
+</head>
+<body>
+    <div id="search">
+        <input id="address" type="text" placeholder="주소 입력">
+        <button id="btn" type="button">검색</button>
+    </div>
+    <br>
+    <div id="googleMap" style="width: 800px; height: 700px;"></div>
+
+    <script>
+        function myMap(){//맨아래 script 태그에서 callback을 mymap으로 해서 mymap은 자동실행되는 결과
+            var map, marker;
+
+            //접속 위치를 얻기
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude; // 위도
+                    var lon = position.coords.longitude; // 경도 
+
+                    var mapOptions = { 
+                        center:new google.maps.LatLng(lat, lon),
+                        zoom:19
+                    };
+                    map = new google.maps.Map(document.getElementById("googleMap"), mapOptions );
+
+                    marker = new google.maps.Marker({position: {lat: lat, lng: lon}, map: map});
+
+                    latlon2addr(lat, lon);
+
+                    //클릭하면 마커 변화
+                    google.maps.event.addListener(map, 'click', function(event){
+                        marker.setMap(null);//마커 하나만 뜨도록 기존것 없애주기
+                        marker=new google.maps.Marker({position: {lat: event.latLng.lat(), lng: event.latLng.lng()}, map: map});
+                        latlon2addr(event.latLng.lat(),event.latLng.lng(),marker);
+                        map.setCenter(marker.getPosition());//마커가 가운데 위치하도록
+                        marker.setMap(map);
+                    })
+                });
+            }
+
+            //위도 경도를 주소로 변환
+            function latlon2addr(lat, lon){
+                var geocoder=new google.maps.Geocoder;//주소를 위도 경도로 변환
+                geocoder.geocode({'location':{lat: lat, lng: lon}},function(results,status){
+                    if (status==='OK') {
+                        makebox(results[0].formatted_address,map);//주소표시
+                    }
+                    else alert('error address');
+                });
+            }
+
+            //주소 표시하기
+            function makebox(addr){
+                var detail='<div>도로명주소 : '+addr+'</div>';
+                var content='<div class="detailAddr">'+'<span class="addr">법정동 주소정보</span>'
+                    +detail+'</div>';
+                
+                var infowindow=new google.maps.InfoWindow();
+                infowindow.setContent(content);
+                infowindow.open(map, marker);
+            }
+
+            //주소를 위도 경도로 변환
+            geocoder=new google.maps.Geocoder();
+            document.getElementById('btn').addEventListener('click', function(){
+                geocodeAddress(geocoder, map);
+            });
+            function geocodeAddress(geocoder, resultMap){
+                var address=document.getElementById('address').value;//입력한 주소
+                geocoder.geocode({'address':address},function(result, status){
+                    if (status==='OK'){//geocode 오류없이 수행
+                        resultMap.setCenter(result[0].geometry.location);//맵 중심좌표 설정
+                        resultMap.setZoom(18);
+                        marker=new google.maps.Marker({
+                            map:resultMap,
+                            position:result[0].geometry.location
+                        });
+
+                        var detail='<div>'+address+'</div>';
+                        var content='<div class="detailAddr">'+detail+'</div>';
+                        var infowindow=new google.maps.InfoWindow();
+                        infowindow.setContent(content);
+                        infowindow.open(map, marker);
+                    }
+                    else alert('geocode error'+status);
+                });
+            }
+        }
+    </script> 
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAINu-Vv9AJ4lAjjQUJsgKVWn7ZlOkn2HM&callback=myMap"></script>
+</body>
+</html>
+
+
+

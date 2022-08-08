@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Nanum+Gothic:wght@800&display=swap" rel="stylesheet">
+    <style>
+        *{font-family: 'Gowun Batang', serif; font-family: 'Nanum Gothic', sans-serif;}
+        .head{margin-top:200px; font-size:60px; margin-left:40px;}
+        .enter{font-size:50px;}
+        .detailAddr{font-size:40px;}
+        .box{margin:10px 20px; font-size:40px; border-radius: 25px;}
+        .button_group{text-align:center;}
+    </style>
+</head>
+<body>
+    <div class="group" style="overflow:hidden;">
+        <div class="head">
+            <img src="https://e7.pngegg.com/pngimages/199/694/png-clipart-computer-icons-map-location-sign-cdr-black-thumbnail.png" 
+            style="width:50px; height:50px">
+            <span class="change1" >위치를 작성해주세요</span>
+            <span class="change2" style="display:none;">작성하신 위치가 맞습니까?</span>
+        </div>
+
+        <br><br>
+        <div class="enter" style="position:relative;">
+            &nbsp;&nbsp;&nbsp;주소입력
+            <input type="text" id="addr" placeholder="도로명주소" style="font-size:40px;">
+            <button class="mb-2 mr-2 btn-transition btn btn-outline-secondary search box" onclick="addrsearch();">
+                확인</button>
+        </div>
+
+        <br>
+        <div id="googleMap" style="width:90%; height:800px; margin:auto; display:none;"></div>
+
+        <br>
+        <div class="button_group">
+            <button class="mb-2 mr-2 btn-transition btn btn-outline-secondary box" onclick="index();">
+                이전페이지</button>
+            <button class="mb-2 mr-2 btn-transition btn btn-outline-secondary again box" onclick="search();" style="display:none;">
+                다시 입력하기</button>
+            <button class="mb-2 mr-2 btn-transition btn btn-outline-secondary done box" onclick="done();" style="display:none;">
+                위치 선택 완료</button>
+        </div>
+    </div>
+
+    <script>
+        var map, marker, geocoder, lat, lon, loc;
+        function myMap(){
+            var mapOptions = { 
+                center:new google.maps.LatLng(33.450701, 126.570667),//임의의 위치정보 넣음
+                zoom:19
+            };
+            map = new google.maps.Map(document.getElementById("googleMap"), mapOptions );
+
+            marker = new google.maps.Marker({position: {lat: 33.450701, lng: 126.570667}, map: map});
+
+            geocoder=new google.maps.Geocoder();
+
+            var autocomplete = new google.maps.places.Autocomplete(document.getElementById('addr'), {
+                types: ['geocode']
+            });
+            //autocomplete.addListener('place_changed', fillInAddress);
+            autocomplete.addListener('place_changed');
+        }
+
+        //주소 자동완성기능
+        function initAutocomplete() {
+            var autocomplete = new google.maps.places.Autocomplete(document.getElementById('addr'), {
+                types: ['geocode']
+            });
+            //autocomplete.addListener('place_changed', fillInAddress);
+            autocomplete.addListener('place_changed');
+        }
+        function fillInAddress() {
+            var place = autocomplete.getPlace();
+            alert(place.geometry.location.lat());
+            alert(place.geometry.location.lng());
+            
+            map.setCenter(place.geometry.location);
+            var searchMarker = new google.maps.Marker({
+                map: map,
+                position: place.geometry.location
+            });
+        }
+
+        //주소를 위도 경도로 변환
+        function addrsearch(){
+            geocodeAddress(geocoder, map);
+        }
+        function geocodeAddress(geocoder, resultMap){
+            var address=document.getElementById('addr').value;//입력한 주소
+            geocoder.geocode({'address':address},function(result, status){
+                if (status==='OK'){//geocode 오류없이 수행
+                    var change1=document.querySelector('.change1');//위치를 입력해주세요 에서 맞습니까 로 바꾸기
+                    change1.style.display='none';
+                    var change2=document.querySelector('.change2');//위치를 입력해주세요 에서 맞습니까 로 바꾸기
+                    change2.style.display='inline';
+
+                    var write = document.getElementById('addr').disabled=true;//주소입력창 비활성화
+
+                    var find=document.querySelector('.search');//주소 입력 완료 버튼 안보이게
+                    find.style.display="none";
+
+                    var again=document.querySelector('.again');//다시 입력하기 버튼 보이게
+                    again.style.display="inline";
+
+                    resultMap.setCenter(result[0].geometry.location);//맵 중심좌표 설정
+                    resultMap.setZoom(18);
+                    marker=new google.maps.Marker({
+                        map:resultMap,
+                        position:result[0].geometry.location
+                    });
+                    document.getElementById('googleMap').style.display='block';//지도 보이게
+
+                    lat=result[0].geometry.location.lat();
+                    lon=result[0].geometry.location.lng();
+                    loc=address;
+
+                    var detail='<div>'+address+'</div>';
+                    var content='<div class="detailAddr">'+detail+'</div>';
+                    var infowindow=new google.maps.InfoWindow();
+                    infowindow.setContent(content);
+                    infowindow.open(map, marker);
+
+                    var done=document.querySelector('.done');
+                    done.style.display="inline";
+                }
+                else alert('geocode error'+status);
+            });
+        }
+
+        //메인페이지로
+        function index(){
+            location.href='/';
+        }
+
+        //위치 재검색
+        function search(){
+            location.href='/search';
+        }
+
+        //서비스 이용완료
+        function done(){
+            var send={
+                "lat":lat,
+                "lon":lon,
+                "loc":loc
+            };
+            localStorage.setItem("send",JSON.stringify(send));//localStorage에 저장해서 다른 파일에서도 사용할 수 있도록
+            location.href='/done';
+        }
+    </script>
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAINu-Vv9AJ4lAjjQUJsgKVWn7ZlOkn2HM&callback=myMap"></script> -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAINu-Vv9AJ4lAjjQUJsgKVWn7ZlOkn2HM&libraries=places&callback=myMap" async defer></script>
+</body>
+</html>

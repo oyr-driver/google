@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Done</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Nanum+Gothic:wght@800&display=swap" rel="stylesheet">
+    <style>
+        *{font-family: 'Gowun Batang', serif; font-family: 'Nanum Gothic', sans-serif;}
+        .title{font-family: 'Do Hyeon', sans-serif;}
+        .group{font-size:60px; text-align:center; margin-top:200px;}
+        .detailAddr{ font-size:40px;}
+    </style>
+</head>
+<body>
+    <div class="group">
+        <div class="here">
+            <img src="https://e7.pngegg.com/pngimages/199/694/png-clipart-computer-icons-map-location-sign-cdr-black-thumbnail.png" 
+            style="width:50px; height:50px">
+            현재 고객님의 위치는
+            <div class="insert" style="color: #e9967a;"></div>
+            입니다.
+        </div>
+
+        <div id="googleMap" style="width:90%;height:650px;;margin:20px auto;"></div>
+
+        <span class="title">GOODDRIVE</span> 를
+        <br>
+        이용해주셔서 감사합니다.
+    </div>
+
+    <script>
+        function myMap(){
+            var receive=JSON.parse(localStorage.getItem("send"));//localStorage에 저장된 send객체값 가져오기
+            var lat, lon, loc;
+            lat=receive.lat;
+            lon=receive.lon;
+            loc=receive.loc;
+
+            var post=document.querySelector('.insert');
+            post.append('"'+loc+'"');
+
+            var mapOptions = { 
+                center:new google.maps.LatLng(lat, lon),
+                zoom:19
+            };
+            map = new google.maps.Map(document.getElementById("googleMap"), mapOptions );
+
+            marker = new google.maps.Marker({position: {lat: lat, lng: lon}, map: map});
+
+            var addr='<div class="detailAddr">'+loc+'</div>';
+            var infowindow=new google.maps.InfoWindow();
+            infowindow.setContent(addr);
+            infowindow.open(map, marker);
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAINu-Vv9AJ4lAjjQUJsgKVWn7ZlOkn2HM&callback=myMap"></script>
+</body>
+</html>

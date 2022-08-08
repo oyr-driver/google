@@ -2,24 +2,83 @@
 <html>
 <head>
     <title>Google</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Nanum+Gothic:wght@800&display=swap" rel="stylesheet">
+    <style>
+        *{
+            font-family: 'Gowun Batang', serif;
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+        .loading{/*gooddrive*/
+            font-family: 'Do Hyeon', sans-serif;
+            font-size:150px;
+            margin-top:600px;
+            text-align:center;
+        }
+        .detailAddr{/*infowindow(주소정보들)*/
+            font-size:40px;
+        }
+        .addr{/*법정동 주소정보*/
+            font-weight: bold;
+            font-size: 45px;
+        }
+        .roadAddr{/*도로명주소*/
+            margin:10px 0px;
+        }
+        .checkbox{/*작성할게요, 네 맞습니다 버튼*/
+            margin:10px 50px;
+            font-size:50px;
+            border-radius: 25px;
+        }
+        .boxgroup{/*버튼 모음*/
+            text-align:center;
+        }
+    </style>
 </head>
 <body>
-    <div id="search">
-        <input id="address" type="text" placeholder="주소 입력">
-        <button id="btn" type="button">검색</button>
+    <div class="loading">GOODDRIVE</div>
+    <div class="box" style="display:none; margin-top:200px;">
+        <div style="font-size:60px; margin-left:60px;">
+            <img src="https://e7.pngegg.com/pngimages/199/694/png-clipart-computer-icons-map-location-sign-cdr-black-thumbnail.png" 
+            style="width:60px; height:60px">
+            현재 위치가 맞습니까?
+        </div>
+        <div style="color:red; font-size:50px; margin-left:85px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;<strong>※아닐경우 위치를 조정해주세요!</strong>
+        </div>
+        
+        <br>
+        <div id="googleMap" style="width: 90%; height: 800px; margin:auto;"></div>
+        <br><br>
+        <div class="boxgroup">
+            <button class="mb-2 mr-2 btn-transition btn btn-outline-secondary checkbox write" onclick="search();">
+                작성할게요</button>
+            <button class="mb-2 mr-2 btn-transition btn btn-outline-secondary checkbox ok" onclick="done();">
+                네, 맞습니다</button>
+        </div>
     </div>
-    <br>
-    <div id="googleMap" style="width: 800px; height: 700px;"></div>
 
     <script>
+        var loader=document.querySelector('.loading');
+        var group=document.querySelector('.box');
+        window.addEventListener('load',()=>{
+            setTimeout(()=>{ //2000ms 후에
+                loader.style.display='none';
+                group.style.display='block';
+            },2000);//로딩속도 구현
+        })
+
+        var lat, lon, loc, map, marker;
         function myMap(){//맨아래 script 태그에서 callback을 mymap으로 해서 mymap은 자동실행되는 결과
-            var map, marker;
 
             //접속 위치를 얻기
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
-                    var lat = position.coords.latitude; // 위도
-                    var lon = position.coords.longitude; // 경도 
+                    lat = position.coords.latitude; // 위도
+                    lon = position.coords.longitude; // 경도 
 
                     var mapOptions = { 
                         center:new google.maps.LatLng(lat, lon),
@@ -55,7 +114,8 @@
 
             //주소 표시하기
             function makebox(addr){
-                var detail='<div>도로명주소 : '+addr+'</div>';
+                loc=addr;
+                var detail='<div class="roadAddr">도로명주소 : '+addr+'</div>';
                 var content='<div class="detailAddr">'+'<span class="addr">법정동 주소정보</span>'
                     +detail+'</div>';
                 
@@ -63,32 +123,22 @@
                 infowindow.setContent(content);
                 infowindow.open(map, marker);
             }
+        }
 
-            //주소를 위도 경도로 변환
-            geocoder=new google.maps.Geocoder();
-            document.getElementById('btn').addEventListener('click', function(){
-                geocodeAddress(geocoder, map);
-            });
-            function geocodeAddress(geocoder, resultMap){
-                var address=document.getElementById('address').value;//입력한 주소
-                geocoder.geocode({'address':address},function(result, status){
-                    if (status==='OK'){//geocode 오류없이 수행
-                        resultMap.setCenter(result[0].geometry.location);//맵 중심좌표 설정
-                        resultMap.setZoom(18);
-                        marker=new google.maps.Marker({
-                            map:resultMap,
-                            position:result[0].geometry.location
-                        });
-
-                        var detail='<div>'+address+'</div>';
-                        var content='<div class="detailAddr">'+detail+'</div>';
-                        var infowindow=new google.maps.InfoWindow();
-                        infowindow.setContent(content);
-                        infowindow.open(map, marker);
-                    }
-                    else alert('geocode error'+status);
-                });
-            }
+        //주소검색 페이지로 이동
+        function search(){
+            location.href='/search';
+        }
+        
+        //서비스 이용완료
+        function done(){
+            var send={
+                "lat":lat,
+                "lon":lon,
+                "loc":loc
+            };
+            localStorage.setItem("send",JSON.stringify(send));//localStorage에 저장해서 다른 파일에서도 사용할 수 있도록
+            location.href='/done';
         }
     </script> 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAINu-Vv9AJ4lAjjQUJsgKVWn7ZlOkn2HM&callback=myMap"></script>

@@ -1,0 +1,24 @@
+{
+  "name": "google",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oyr-driver/google.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oyr-driver/google/issues"
+  },
+  "homepage": "https://github.com/oyr-driver/google#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}

@@ -25,6 +25,10 @@ app.get('/done', (req,res) => {
     res.render('done');
 });
 
+app.get('/camera', (req,res) => {
+    res.render('camera');
+});
+
 server.listen(port, () => {
     console.log(`Server running at https://localhost:${port}/`);
 });

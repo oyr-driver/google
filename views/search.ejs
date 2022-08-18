@@ -63,28 +63,7 @@
             var autocomplete = new google.maps.places.Autocomplete(document.getElementById('addr'), {
                 types: ['geocode']
             });
-            //autocomplete.addListener('place_changed', fillInAddress);
             autocomplete.addListener('place_changed');
-        }
-
-        //주소 자동완성기능
-        function initAutocomplete() {
-            var autocomplete = new google.maps.places.Autocomplete(document.getElementById('addr'), {
-                types: ['geocode']
-            });
-            //autocomplete.addListener('place_changed', fillInAddress);
-            autocomplete.addListener('place_changed');
-        }
-        function fillInAddress() {
-            var place = autocomplete.getPlace();
-            alert(place.geometry.location.lat());
-            alert(place.geometry.location.lng());
-            
-            map.setCenter(place.geometry.location);
-            var searchMarker = new google.maps.Marker({
-                map: map,
-                position: place.geometry.location
-            });
         }
 
         //주소를 위도 경도로 변환
@@ -154,7 +133,6 @@
             location.href='/done';
         }
     </script>
-    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAINu-Vv9AJ4lAjjQUJsgKVWn7ZlOkn2HM&callback=myMap"></script> -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAINu-Vv9AJ4lAjjQUJsgKVWn7ZlOkn2HM&libraries=places&callback=myMap" async defer></script>
 </body>
 </html>

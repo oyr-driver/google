@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/css/main.css">
+    <title>Document</title>
+    <style>
+        .box{margin:10px 20px; font-size:40px; border-radius: 25px;}
+    </style>
+</head>
+<body>
+    <video width="800" height="600" autoplay></video>
+    <button class="mb-2 mr-2 btn-transition btn btn-outline-secondary box" onclick="snapshot();">
+        카메라</button>
+    <div id="snapshots"></div>
+    <canvas width="800" height="600" style="display:none;"></canvas>
+
+    <script>
+        window.URL = window.URL || window.webkitURL;
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
+                                ||navigator.mozGetUserMedia || navigator.msGetUserMedia;//브라우저별로 다 다름
+        var video = document.querySelector('video');
+        var canvas = document.querySelector('canvas');
+        var ctx = canvas.getContext('2d');//그리기 위해 필요(렌더링 컨텍스트에 접근)
+        var localMediaStream = null;
+        let i=0;
+        function snapshot() {
+            if (localMediaStream) {
+                ctx.drawImage(video, 0, 0, 800, 600);//video를 x좌표 0, y좌표 0에 넓이 800, 높이 600으로 그리기
+                var snapshots = document.querySelector('#snapshots');
+                var img = document.createElement('img');
+                img.classList.add(i);
+                i++;
+                img.src = canvas.toDataURL('image/webp');//dataURL로 변환(string형태)
+                img.width = 800;
+                img.height = 600;
+                snapshots.insertBefore(img, snapshots.firstChild);//img를 smapshots의 맨앞에 삽입
+                console.log("this image's class is",img.className);
+            }
+        }
+        var onFailSoHard = function (e) {console.log("Rejected!", e);};
+        //웹에서 카메라 정보 얻어오기
+        navigator.getUserMedia({video: true}, function (stream) {//video를 true로 설정하고(화질 등 설정가능, audio 경우 audio true로 설정)
+            video.srcObject=stream;//미디어 엑세스 요청이 승인되면 함수 실행(stream 연결)
+            localMediaStream = stream;
+        }, onFailSoHard);//error 있다면 onFailSoHard 실행
+    </script>
+</body>
+</html>

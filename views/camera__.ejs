@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&family=Nanum+Gothic:wght@800&display=swap" rel="stylesheet">
+    <style>
+        *{font-family: 'Gowun Batang', serif; font-family: 'Nanum Gothic', sans-serif;}
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Hello</h1>
+        <input type="file" id="takePicture" accept="image/*">
+        <img src="about:blank" id="showPicture" alt="picture"> <!--about:blank는 빈 페이지 띄우기 -->
+    </div>
+
+    <!--------------------------------------------파일찾기 뜨는 파일----------------------------------------------------------->
+    
+    <script>
+        var take=document.getElementById('takePicture');
+        var show=document.getElementById('showPicture');
+        if (take&&show){
+            take.onchange=function(event){
+                var files=event.target.files;
+                console.log(files);
+                if (files && files.length>0) {
+                    var file=files[0];
+                    console.log(file);
+                    try{//오류있을수도 있는 문장
+                        var link=window.URL||window.webkitURL;//window.URL 객체 얻기
+                        console.log(link);
+                        var imgUrl=link.createObjectURL(file);//objectURL 생성
+                        show.src=imgUrl;
+                        console.log(show.src);
+                        link.revokeObjectURL(imgUrl);//url 취소하기
+                        console.log('done');
+                    }
+                    catch(e){//에러 있다면
+                        console.log('error');
+                        try{
+                            var fileReader=new FileReader();//createObject가 안되는 경우
+                            fileReader.onload=function(event){
+                                show.src=event.target.result;
+                            };
+                            fileReader.readAsDataURL(file);
+                        }
+                        catch(e){
+                            var error=document.getElementById('error');
+                            if(error) error.innerHTML="Neither createObjectURL or FileReader are supported";
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

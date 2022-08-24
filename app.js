@@ -25,8 +25,8 @@ app.get('/done', (req,res) => {
     res.render('done');
 });
 
-app.get('/camera', (req,res) => {
-    res.render('camera');
+app.get('/thanks', (req,res) => {
+    res.render('thanks');
 });
 
 server.listen(port, () => {

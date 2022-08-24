@@ -14,6 +14,8 @@
     <div id="snapshots"></div>
     <canvas width="800" height="600" style="display:none;"></canvas>
 
+<!---------------------------------------------------------웹에서 사진찍기------------------------------------------------------>
+
     <script>
         window.URL = window.URL || window.webkitURL;
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
@@ -35,6 +37,7 @@
                 img.height = 600;
                 snapshots.insertBefore(img, snapshots.firstChild);//img를 smapshots의 맨앞에 삽입
                 console.log("this image's class is",img.className);
+                console.log('src=',img.src);
             }
         }
         var onFailSoHard = function (e) {console.log("Rejected!", e);};
